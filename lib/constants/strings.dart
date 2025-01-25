@@ -8,6 +8,9 @@ class AppStrings {
   /// Fonts.
   static const String timesFont = "Times";
 
+  /// Toast.
+  static const String noVidURLToast = "URL can't be empty";
+
   /// Signs.
   static const String aSign = "A.";
   static const String bSign = "B.";
@@ -45,4 +48,8 @@ class AppStrings {
   static const String openingCurlyBraceSign = "{";
   static const String closingSquareBracketSign = "]";
   static const String openingSquareBracketSign = "[";
+
+  /// Text.
+  static const String vidURLText = "Vid URL ";
+  static const String loadVidText = "Load Vid";
 }

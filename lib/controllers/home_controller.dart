@@ -1,41 +1,50 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_vid_player/constants/extensions.dart';
+import 'package:youtube_vid_player/constants/strings.dart';
 
 class HomeController extends GetxController {
-  bool muted = false;
-  double volume = 100;
-  bool isUrlEmpty = true;
-  bool isPlayerReady = false;
-  PlayerState playerState = PlayerState.unknown;
-  YoutubeMetaData videoMetaData = const YoutubeMetaData();
-  TextEditingController urlController = TextEditingController();
-  TextEditingController seekToController = TextEditingController();
-  YoutubePlayerController controller = YoutubePlayerController(initialVideoId: "", flags: const YoutubePlayerFlags(mute: false, loop: false, isLive: false, autoPlay: true, forceHD: false, hideThumbnail: true, enableCaption: false, disableDragSeek: false));
-  final List<String> ids = ['nPt8bK2gbaU', 'gQDByCdjUXw', 'iLnmTe5Q2Qw', '_WoCV4c6XOE', 'KmzdUe0RSJo', '6jZDSSZZxjQ', 'p2lYr3vM_1w', '7QUtEmBT_-w', '34_PXCzGw1M'];
+  var isNoVid = true;
+  var isYoutubeControllerInitialized = false.obs; // Reactive flag
+  late YoutubePlayerController youtubeController;
+  TextEditingController vidURLController = TextEditingController();
 
   @override
-  void onInit() {
-    controller = YoutubePlayerController(
-      initialVideoId: "",
-      flags: const YoutubePlayerFlags(
-        mute: false,
-        loop: false,
-        isLive: false,
-        autoPlay: true,
-        forceHD: false,
-        hideThumbnail: true,
-        enableCaption: false,
-        disableDragSeek: false,
-      ),
-    )..addListener(listener);
-    super.onInit();
+  void onClose() {
+    if (isYoutubeControllerInitialized.value) {
+      youtubeController.pause();
+      youtubeController.dispose();
+    }
+    super.onClose();
   }
 
-  void listener() {
-    if (isPlayerReady && !controller.value.isFullScreen) {
-      playerState = controller.value.playerState;
-      videoMetaData = controller.metadata;
+  void getVid() {
+    if (vidURLController.text.isNotEmpty) {
+      String? videoId = YoutubePlayer.convertUrlToId(vidURLController.text);
+
+      if (videoId == null) {
+        return;
+      }
+
+      if (!isYoutubeControllerInitialized.value) {
+        youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: YoutubePlayerFlags(
+            loop: false,
+            mute: false,
+            autoPlay: false,
+            enableCaption: false,
+          ),
+        );
+        isYoutubeControllerInitialized.value = true;
+      } else {
+        youtubeController.load(videoId);
+      }
+      isNoVid = false;
+      update();
+    } else {
+      AppStrings.noVidURLToast.showToast;
     }
   }
 }
